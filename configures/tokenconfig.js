@@ -1,5 +1,5 @@
 module.exports = {
-    expiresIn: "7d",
-}
+    expiresIn: '7d'
+};
 
-module.exports.secret = () => ("Mystrongsecret");
+module.exports.secret = () => ('Mystrongsecret');

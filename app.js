@@ -35,6 +35,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+// configure static for prod build in dist directory
+app.use(express.static(__dirname + '/dist'));
 
 app.use('/api/v1/users', users);
 app.use('/', index);
