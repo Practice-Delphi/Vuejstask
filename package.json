@@ -1,0 +1,41 @@
+{
+  "name": "vue-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www",
+    "dbrun": ""
+  },
+  "dependencies": {
+    "body-parser": "~1.13.2",
+    "cookie-parser": "~1.3.5",
+    "cors": "^2.8.4",
+    "express": "~4.13.1",
+    "jsonwebtoken": "^8.3.0",
+    "mongodb": "^3.1.1",
+    "mongoose": "^5.2.5"
+  },
+  "devDependencies": {
+    "eslint": "^5.2.0",
+    "eslint-plugin-vue": "^4.7.1",
+    "nodemon": "^1.18.3"
+  },
+  "description": "- MongoDB connection on http://localhost:27017",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Practice-Delphi/Vuejstask.git"
+  },
+  "keywords": [
+    "Vue.js",
+    "Node.js",
+    "Express",
+    "MongoDB"
+  ],
+  "author": "Practice-Delphi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Practice-Delphi/Vuejstask/issues"
+  },
+  "homepage": "https://github.com/Practice-Delphi/Vuejstask#readme"
+}
