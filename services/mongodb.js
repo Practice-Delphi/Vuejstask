@@ -1,18 +1,23 @@
 // const MongoClient = require('mongodb').MongoClient;
 const mongoose = require('mongoose');
 
+const bcrypt = require('bcrypt');
+const bcryptconf = require('../configures/bcryptconfig');
+
 const Schema = mongoose.Schema;
 // const ObjectId = mongoose.ObjectId;
 
 const UserSchema = new Schema({
     name: {
-        type: String, default: "myname",
-        required: [true, "Name must be not empty"]
+        type: String,
+        default: 'myname',
+        required: [true, 'Name must be not empty']
     },
     email: {
-        type: String, default: "myemail",
-        required: [true, "Email must be not empty"],
-        unique: true,
+        type: String,
+        default: 'myemail',
+        required: [true, 'Email must be not empty'],
+        unique: true
         // validate: {
         //     validator: (v) => {
         //         return /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(v);
@@ -22,37 +27,25 @@ const UserSchema = new Schema({
     },
     password: {
         type: String,
-        default: "pass",
-        required: [true, "Password must be not empty"]
+        default: 'pass',
+        required: [true, 'Password must be not empty']
     },
     photo: {
-        type: String, default: ""
-    },
+        type: String, default: ''
+    }
 });
 
 // Connection URL
 const dburl = 'mongodb://localhost:27017/vueappdb';
 
-// Database Name
-const dbName = 'vueappdb';
-
 class DataBase {
     constructor(url) {
         this.db = null;
-        // MongoClient
-        //     .connect(url, { useNewUrlParser: true })
-        //     .then((db) => {
-        //         // console.log(db);
-        //         this.db = db;
-        //     })
-        //     .catch(err => {
-        //         console.log(`Connection failed\n ${err.toString()}`);
-        //     })
         mongoose.createConnection(url, { useNewUrlParser: true })
             .then(conn => {
                 this.db = conn;
-                this.User = this.db.model("User", UserSchema);
-                console.log("MongoDB is connected");
+                this.User = this.db.model('User', UserSchema);
+                console.log('MongoDB is connected');
             })
             .catch(err => {
                 console.log(`Connection failed\n ${err.toString()}`);
@@ -65,33 +58,90 @@ class DataBase {
 
     getUser(user) {
         return new Promise((resolve, reject) => {
-            this.User.find(user)
-            .then(data => {
-                if (data[0]) {
-                    resolve(data[0]);
-                } else {
-                    reject("User not find");
-                }
-            })
-            .catch(err => reject(err));
+            this.User.findOne(user)
+                .then(data => {
+                    if (data) {
+                        data.password = undefined;
+                        resolve(data);
+                    } else {
+                        reject(new Error('User not find'));
+                    }
+                })
+                .catch(err => reject(err));
         });
     }
 
-    setUser(user) {
-        let curruser = new this.User(user);
+    getUserByEmailAndPassword(email, password) {
         return new Promise((resolve, reject) => {
-            this.User.find({ email: user.email })
+            if (!email) {
+                reject(new Error('Email is empty'));
+            } else if (!password) {
+                reject(new Error('Password is empty'));
+            } else {
+                this.User.findOne({ email })
+                    .then(data => {
+                        if (data) {
+                            bcrypt.compare(password, data.password)
+                                .then(res => {
+                                    if (res) {
+                                        resolve(data);
+                                    } else {
+                                        reject(new Error('Password is wrong'));
+                                    }
+                                });
+                        } else {
+                            reject(new Error('User not find'));
+                        }
+                    })
+                    .then(res => {
+                    })
+                    .catch(err => reject(err));
+            }
+        });
+    }
+    
+    setUser(user) {
+        return new Promise((resolve, reject) => {
+            if (user.password !== user.passconf) {
+                reject(new Error('Password not confirmed'));
+            }
+            this.User.findOne({ email: user.email })
                 .then(dat => {
-                    if (!dat[0]) {
-                        return curruser.save()
+                    if (!dat) {
+                        return bcrypt.hash(user.password, bcryptconf.saltrounds());
                     } else {
-                        reject("This email is already used");
+                        reject(new Error('This email is already used'));
                     }
                 })
-                .then(() => {
-                    return this.User.find(user)
+                .then(hash => {
+                    user.password = hash;
+                    let curruser = new this.User(user);
+                    return curruser.save();
                 })
-                .then(data => resolve(data[0]))
+                .then(() => {
+                    return this.getUser({ email: user.email });
+                })
+                .then(data => resolve(data))
+                .catch(err => reject(err));
+        });
+    }
+
+    updateUser(email, updates) {
+        return new Promise((resolve, reject) => {
+            this.getUser({ email })
+                .then(user => {
+                    if (updates.password) {
+                        updates.password = bcrypt.hashSync(updates.password, bcryptconf.saltrounds());
+                    }
+                    if (updates.photo) {
+                        updates.photo = undefined;
+                    }
+                    return this.User.findByIdAndUpdate(user._id, updates, { new: true });
+                })
+                .then(newuser => {
+                    newuser.password = undefined;
+                    resolve(newuser);
+                })
                 .catch(err => reject(err));
         });
     }
