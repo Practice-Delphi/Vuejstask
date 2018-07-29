@@ -20,6 +20,7 @@ const bodyverify = (req, res, next) => {
 
 const authorize = (req, res, next) => {
     if (req.headers.authorization) {
+        console.log(req.headers.authorization);
         const token = req.headers.authorization.split(' ')[1];
         if (token) {
             jwt.verify(token, jwtconf.secret(), (err, data) => {
@@ -42,7 +43,7 @@ const authorize = (req, res, next) => {
 router.post('/register', bodyverify, (req, res, next) => {
     db.setUser(req.body)
         .then(user => {
-            res.send({ message: 'Register success' });
+            res.send({ success: 'Register success' });
         })
         .catch(err => {
             res.status(400).send({ message: err.toString() });

@@ -23,8 +23,6 @@ const jwtconf = require('./configures/tokenconfig');
 
 // import db service
 
-
-
 // import routers
 const users = require('./routes/users');
 const index = require('./routes/index');
@@ -44,4 +42,3 @@ app.use('/api/v1/auth', auth);
 app.use('/', index);
 
 module.exports = app;
-
