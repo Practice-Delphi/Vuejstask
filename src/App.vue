@@ -133,10 +133,16 @@ button:hover {
   margin: 10px 0;
 }
 
+.form-photo-input-new {
+  display: flex;
+}
+
 .form-photo-input-button {
+  flex: 1 1 30%;
   border-radius: 5px 0 0 5px;
 }
 .form-photo-input-label {
+  flex: 1 1 70%;
   border-radius: 0 5px 5px 0;
   margin: 0;
 }
@@ -178,5 +184,24 @@ button:hover {
 
 .form-submit {
   margin: auto;
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    padding: 10px 0;
+    max-width: 100%;
+  }
+  form {
+    margin: 20px 10px;
+  }
+  .form-input {
+    flex-flow: column nowrap;
+  }
+  .form-photo-input-button {
+    font-size: 16px;
+  }
+  .form-photo-input-label {
+    font-size: 16px;
+  }
 }
 </style>
