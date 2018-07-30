@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
     <div class="page">
-      <div>Copyright</div>
+      <div class="footer-text">Copyright @2018</div>
     </div>
   </footer>
 </template>
@@ -14,7 +14,13 @@
 
 <style>
 .footer {
-  background-color: rgb(167, 208, 134);
+  background-color: rgb(140, 174, 112);
   padding: 10px;
+}
+
+.footer-text {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
 }
 </style>

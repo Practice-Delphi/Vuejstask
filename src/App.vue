@@ -83,7 +83,8 @@ form {
 
 button {
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: bold;
   color: white;
   background-color: rgb(167, 208, 134);
   border-radius: 4px;

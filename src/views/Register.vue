@@ -28,7 +28,7 @@
         <input type="password" placeholder="Password" @change='changePassword'>
       </div>
       <div class="form-input">
-        <label>Password Confirm:</label><input type="password" placeholder="Password" @change='changePassconf'>
+        <label>Password Confirm:</label><input type="password" placeholder="Password Confirm" @change='changePassconf'>
       </div>
       <button class="form-submit" type="submit">Register</button>
     </form>
