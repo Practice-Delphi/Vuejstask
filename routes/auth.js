@@ -6,6 +6,7 @@ const jwtconf = require('../configures/tokenconfig');
 
 const db = require('../services/mongodb');
 
+const uploadphoto = require('../services/multer').uploadhoto;
 
 /* body verification middleware */
 const bodyverify = (req, res, next) => {
@@ -17,10 +18,9 @@ const bodyverify = (req, res, next) => {
 }
 
 /* Authorization middleware */
-
 const authorize = (req, res, next) => {
     if (req.headers.authorization) {
-        console.log(req.headers.authorization);
+        // console.log(req.headers.authorization);
         const token = req.headers.authorization.split(' ')[1];
         if (token) {
             jwt.verify(token, jwtconf.secret(), (err, data) => {
@@ -74,11 +74,23 @@ router.get('/getuser', authorize, (req, res, next) => {
 });
 
 /* POST update current user */
-
 router.post('/update', bodyverify, authorize, (req, res, next) => {
     db.updateUser(req.tokendata.email, req.body)
         .then(user => res.send({ user }))
         .catch(err => res.status(400).send({ message: err.message }));
+});
+
+/* POST upload user photo */
+router.post('/uploadphoto', bodyverify, authorize, uploadphoto, (req, res, next) => {
+    const url = `${req.file.filename}`;
+    console.log(req.file);
+    db.updateUserPhoto(url, req.tokendata.email)
+        .then(user => {
+            res.send({ user });
+        })
+        .catch(err => {
+            res.status(400).send({ message: err.message });
+        })
 });
 
 module.exports = router;

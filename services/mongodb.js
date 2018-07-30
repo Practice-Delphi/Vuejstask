@@ -7,6 +7,8 @@ const bcryptconf = require('../configures/bcryptconfig');
 const Schema = mongoose.Schema;
 // const ObjectId = mongoose.ObjectId;
 
+const fs = require('fs');
+
 const UserSchema = new Schema({
     name: {
         type: String,
@@ -99,7 +101,7 @@ class DataBase {
             }
         });
     }
-    
+
     setUser(user) {
         return new Promise((resolve, reject) => {
             if (user.password !== user.passconf) {
@@ -143,6 +145,37 @@ class DataBase {
                     resolve(newuser);
                 })
                 .catch(err => reject(err));
+        });
+    }
+    updateUserPhoto(url, email) {
+        return new Promise((resolve, reject) => {
+            if (!url) {
+                reject(new Error('No url to update photo'));
+            }
+            if (!email) {
+                reject(new Error('No user email to update photo'));
+            }
+            console.log(url, email);
+            this.getUser({ email })
+                .then(user => {
+                    const dist = `${__dirname}/../res/photos/${user.photo}`;
+                    if (user.photo && fs.existsSync(dist)) {
+                        fs.unlink(dist, (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                return this.User.findByIdAndUpdate(user._id, { photo: url });
+                            }
+                        })
+                    } else {
+                        return this.User.findByIdAndUpdate(user._id, { photo: url }, { new: true });
+                    }
+                })
+                .then(newuser => {
+                    newuser.password = undefined;
+                    resolve(newuser);
+                })
+                .catch(reject);
         });
     }
 }

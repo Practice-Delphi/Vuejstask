@@ -3,6 +3,11 @@
     <h1>This is register page</h1>
     <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
     <form @submit='register'>
+      <div>
+        <img :src="photourl" alt="photo"/>
+        <input type="file" @change='choosePhoto'/>
+        <h3>{{this.photoname}}</h3>
+      </div>
       <label>Name:</label><input type="text" placeholder="Name" @change='changeName'>
       <label>Email:</label><input type="email" placeholder="Email" @change='changeEmail'>
       <label>Password:</label><input type="password" placeholder="Password" @change='changePassword'>
@@ -21,12 +26,15 @@ export default {
       name: null,
       email: null,
       password: null,
-      passconf: null
+      passconf: null,
+      photo: null,
+      photourl: null,
+      photoname: null
     };
   },
   computed: {
     ...mapState({
-      userData: 'userData'
+      userData: "userData"
     })
   },
   methods: {
@@ -36,7 +44,8 @@ export default {
           name: this.name,
           email: this.email,
           password: this.password,
-          passconf: this.passconf
+          passconf: this.passconf,
+          photo: this.photo
         });
       }
     }),
@@ -51,16 +60,29 @@ export default {
     },
     changePassconf(e) {
       this.passconf = e.target.value;
+    },
+    choosePhoto(e) {
+      this.photo = e.target.files.item(0);
+      // console.log(this.photo);
+      if (this.photo) {
+        this.photoname = this.photo.name;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          this.photourl = reader.result;
+          // console.log(this.photourl);
+        };
+        reader.readAsDataURL(this.photo);
+      }
     }
   },
   created() {
     if (this.userData.user) {
-      this.$router.replace('/profile');
+      this.$router.replace("/profile");
     }
   },
   updated() {
     if (this.userData.user) {
-      this.$router.replace('/profile');
+      this.$router.replace("/profile");
     }
   }
 };

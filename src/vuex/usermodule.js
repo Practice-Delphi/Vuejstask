@@ -42,7 +42,7 @@ const tokenAction = async (commit, email, password) => {
         });
 };
 
-const loginAction = async ({ commit, state }, { email, password }) => {
+const loginAction = async ({ commit, state, dispatch }, { email, password, photo }) => {
     commit({ type: USER_FETCH_START });
     let token = null;
     if (state.token) {
@@ -65,10 +65,14 @@ const loginAction = async ({ commit, state }, { email, password }) => {
                 if (data.message) {
                     throw new Error(data.message);
                 } else {
-                    commit({
-                        type: USER_FETCH_SUCCESS,
-                        user: data.user
-                    });
+                    if (photo) {
+                        dispatch('uploadUserPhotoAction', { photo });
+                    } else {
+                        commit({
+                            type: USER_FETCH_SUCCESS,
+                            user: data.user
+                        });
+                    }
                 }
             })
             .catch(err => {
@@ -81,6 +85,45 @@ const loginAction = async ({ commit, state }, { email, password }) => {
     }
 };
 
+const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
+    // console.log('Upload', photo);
+    let token = null;
+    if (state.token) {
+        token = state.token;
+    } else if (localStorage.getItem('token')) {
+        token = localStorage.getItem('token');
+    }
+    if (photo && token) {
+       
+        const form = new FormData();
+        form.append('photo', photo, photo.name);
+        fetch(`${apiurl}/api/v1/auth/uploadphoto`, {
+            method: 'POST',
+            headers: new Headers({
+                'Authorization': `Bearer ${token}`
+            }),
+            body: form
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    throw new Error(data.message);
+                } else {
+                    commit({
+                        type: USER_FETCH_SUCCESS,
+                        user: data.user
+                    });
+                }
+            })
+            .catch(err => {
+                console.log(err.mesasge);
+                commit({
+                    type: USER_FETCH_FAILED,
+                    error: err.message
+                });
+            });
+    }
+}
 const registerAction = ({ commit, dispatch }, newuser) => {
     commit({ type: USER_FETCH_START });
     fetch(`${apiurl}/api/v1/auth/register`, {
@@ -88,14 +131,22 @@ const registerAction = ({ commit, dispatch }, newuser) => {
         headers: new Headers({
             'Content-Type': 'application/json'
         }),
-        body: JSON.stringify(newuser)
+        body: JSON.stringify(Object.assign({}, newuser, { photo: undefined }))
     })
         .then(res => res.json())
         .then(data => {
-            if (data.mesasge) {
+            if (data.message) {
                 throw new Error(data.message);
             } else {
-                dispatch('loginAction', { email: newuser.email, password: newuser.password });
+                let payload = {
+                    email: newuser.email,
+                    password: newuser.password
+                };
+                if (newuser.photo) {
+                    // console.log(newuser.photo);
+                    payload.photo = newuser.photo;
+                }
+                dispatch('loginAction', payload);
             }
         })
         .catch(err => {
@@ -157,7 +208,8 @@ const usermodule = {
     actions: {
         loginAction,
         logoutAction,
-        registerAction
+        registerAction,
+        uploadUserPhotoAction
     }
 };
 

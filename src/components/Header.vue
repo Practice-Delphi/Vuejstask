@@ -18,7 +18,7 @@
 import { mapActions } from 'vuex';
 
 export default {
-  name: 'header',
+  name: 'Header',
   methods: {
     ...mapActions({
       logout: 'logoutAction'

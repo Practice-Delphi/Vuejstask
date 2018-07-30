@@ -7,8 +7,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 // jwt token tools
-const jwt = require('jsonwebtoken');
-const jwtconf = require('./configures/tokenconfig');
+// const jwt = require('jsonwebtoken');
+// const jwtconf = require('./configures/tokenconfig');
 
 // jwt.sign({ email: "emila@mail.com", password: "pass"}, jwtconf.secret(), (err, token) => {
 //     console.log(token);
@@ -36,6 +36,7 @@ app.use(cookieParser());
 app.use(cors());
 // configure static for prod build in dist directory
 app.use(express.static(path.resolve(`${__dirname}/dist`)));
+app.use('/r/photo', express.static(path.resolve(`${__dirname}/res/photos`)));
 
 app.use('/api/v1/users', users);
 app.use('/api/v1/auth', auth);
