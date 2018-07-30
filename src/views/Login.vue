@@ -1,11 +1,17 @@
 <template>
   <div class="container">
-    <h1>This is login page</h1>
     <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
     <form @submit="login">
-      <input type='email' placeholder='Email' @change="changeEmail">
-      <input type='password' placeholder='Password' @change="changePassword">
-      <button type='submit'>Login</button>
+      <div class="form-title">Login</div>
+      <div class="form-input">
+        <label>Email:</label>
+        <input type="email" placeholder="Email" @change='changeEmail'>
+      </div>
+      <div class="form-input">
+        <label>Password:</label>
+        <input type="password" placeholder="Password" @change='changePassword'>
+      </div>
+      <button class="form-submit" type='submit'>Login</button>
     </form>
   </div>
 </template>

@@ -1,24 +1,43 @@
 <template>
   <div class="container">
-    <h1>This is register page</h1>
     <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
     <form @submit='register'>
-      <div>
-        <img :src="photourl" alt="photo"/>
-        <input type="file" @change='choosePhoto'/>
-        <h3>{{this.photoname}}</h3>
+      <div class="form-title">Register</div>
+      <div class="form-photo">
+        <div class="form-photo-preview">
+          <img :src="photourl" alt="photo"/>
+        </div>
+        <div class="form-photo-input">
+          <div class="form-photo-input-new">
+            <button class="form-photo-input-button">Choose</button>
+            <input class="form-photo-input-label" :value="photoname" placeholder="Filename"/>
+          </div>
+          <input class="form-photo-input-file" type="file" accept="image/*" @change='choosePhoto'/>
+        </div>
       </div>
-      <label>Name:</label><input type="text" placeholder="Name" @change='changeName'>
-      <label>Email:</label><input type="email" placeholder="Email" @change='changeEmail'>
-      <label>Password:</label><input type="password" placeholder="Password" @change='changePassword'>
-      <label>Password Confirm:</label><input type="password" placeholder="Password" @change='changePassconf'>
-      <button type="submit">Register</button>
+      <div class="form-input">
+        <label>Name:</label>
+        <input type="text" placeholder="Name" @change='changeName'>
+      </div>
+      <div class="form-input">
+        <label>Email:</label>
+        <input type="email" placeholder="Email" @change='changeEmail'>
+      </div>
+      <div class="form-input">
+        <label>Password:</label>
+        <input type="password" placeholder="Password" @change='changePassword'>
+      </div>
+      <div class="form-input">
+        <label>Password Confirm:</label><input type="password" placeholder="Password" @change='changePassconf'>
+      </div>
+      <button class="form-submit" type="submit">Register</button>
     </form>
   </div>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
+import defaultuserphoto from "../assets/default-user.png";
 export default {
   name: "Register",
   data() {
@@ -78,6 +97,9 @@ export default {
   created() {
     if (this.userData.user) {
       this.$router.replace("/profile");
+    }
+    if (!this.photourl) {
+      this.photourl = defaultuserphoto;
     }
   },
   updated() {
