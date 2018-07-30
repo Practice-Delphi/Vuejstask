@@ -10,6 +10,8 @@ export const USER_DELETE = 'USER_DELETE';
 
 const apiurl = `http://localhost:3000`;
 
+const isUserGetter = state => !!(state.user);
+
 const tokenAction = async (commit, email, password) => {
     return fetch(`${apiurl}/api/v1/auth/token`, {
         method: 'POST',
@@ -39,7 +41,7 @@ const tokenAction = async (commit, email, password) => {
                 type: TOKEN_FETCH_FAILED,
                 error: err.message
             });
-        });
+    });
 };
 
 const loginAction = async ({ commit, state, dispatch }, { email, password, photo }) => {
@@ -81,7 +83,7 @@ const loginAction = async ({ commit, state, dispatch }, { email, password, photo
                     type: USER_FETCH_FAILED,
                     error: err.message
                 });
-            });
+        });
     }
 };
 
@@ -94,7 +96,6 @@ const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
         token = localStorage.getItem('token');
     }
     if (photo && token) {
-       
         const form = new FormData();
         form.append('photo', photo, photo.name);
         fetch(`${apiurl}/api/v1/auth/uploadphoto`, {
@@ -121,9 +122,9 @@ const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
                     type: USER_FETCH_FAILED,
                     error: err.message
                 });
-            });
+        });
     }
-}
+};
 const registerAction = ({ commit, dispatch }, newuser) => {
     commit({ type: USER_FETCH_START });
     fetch(`${apiurl}/api/v1/auth/register`, {
@@ -155,8 +156,8 @@ const registerAction = ({ commit, dispatch }, newuser) => {
                 type: USER_FETCH_FAILED,
                 error: err.message
             });
-        });
-}
+    });
+};
 
 const logoutAction = ({ commit }) => {
     commit({ type: TOKEN_DELETE });
@@ -169,6 +170,9 @@ const usermodule = {
         error: null,
         user: null,
         token: null
+    },
+    getters: {
+        isUserGetter
     },
     mutations: {
         [USER_FETCH_START]: (state) => {

@@ -10,25 +10,28 @@
         <router-link class="header-navbar-link" v-if="!isUser" to="/register">Register</router-link>
         <router-link class="header-navbar-link" v-if="!isUser" to="/login">Login</router-link>
         <router-link class="header-navbar-link" v-if="isUser" to="/profile">Profile</router-link>
-        <a href='' class="header-navbar-link" v-if="isUser" @click="logout">Logout</a>
+        <div class="header-logout" v-if="isUser" @click="logout"><router-link class='header-navbar-link' to='/'>Logout</router-link></div>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 
 export default {
   name: 'Header',
   data() {
     return {
-      isUser: false
+
     }
   },
   computed: {
     ...mapState({
       userData: 'userData'
+    }),
+    ...mapGetters({
+      isUser: 'isUserGetter'
     })
   },
   methods: {
@@ -37,10 +40,8 @@ export default {
     })
   },
   created() {
-    if (this.userData.user) {
-      this.isUser = true;
-    }
-    console.log(this.isUser);
+  },
+  updated() {
   }
 };
 </script>
@@ -81,5 +82,11 @@ export default {
   }
   .header-navbar-link:hover {
     background-color: rgb(114, 143, 90);
+  }
+
+  .header-logout {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
   }
 </style>
