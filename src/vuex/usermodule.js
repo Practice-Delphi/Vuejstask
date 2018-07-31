@@ -12,6 +12,15 @@ export const CLOSE_ERROR = 'CLOSE_ERROR';
 
 const apiurl = `http://localhost:3000`;
 
+const getToken = (state) => {
+    if (state.token) {
+        return state.token;
+    } else if (localStorage.getItem('token')) {
+        return localStorage.getItem('token');
+    }
+    return null;
+}
+
 const isUserGetter = state => !!(state.user);
 const isErrorGetter = state => !!(state.error);
 const errorGetter = state => state.error;
@@ -46,21 +55,14 @@ const tokenAction = async (commit, email, password) => {
                 type: TOKEN_FETCH_FAILED,
                 error: err.message
             });
-    });
+        });
 };
 
-const loginAction = async ({ commit, state, dispatch }, { email, password, photo }) => {
-    commit({ type: USER_FETCH_START });
-    let token = null;
-    if (state.token) {
-        token = state.token;
-    } else if (localStorage.getItem('token')) {
-        token = localStorage.getItem('token');
+const getUserAction = ({ commit, dispatch, state }) => {
+    let token = getToken(state);
+    if (!token) {
+        dispatch('logoutAction');
     } else {
-        await tokenAction(commit, email, password);
-        token = state.token;
-    }
-    if (token) {
         fetch(`${apiurl}/api/v1/auth/getuser`, {
             method: 'GET',
             headers: new Headers({
@@ -72,56 +74,14 @@ const loginAction = async ({ commit, state, dispatch }, { email, password, photo
                 if (data.message) {
                     throw new Error(data.message);
                 } else {
-                    if (photo) {
-                        dispatch('uploadUserPhotoAction', { photo });
-                    } else {
+                    // if (photo) {
+                    //     dispatch('uploadUserPhotoAction', { photo });
+                    // } else {
                         commit({
                             type: USER_FETCH_SUCCESS,
                             user: data.user
                         });
-                    }
-                }
-            })
-            .catch(err => {
-                console.log(err.message);
-                commit({
-                    type: USER_FETCH_FAILED,
-                    error: err.message
-                });
-        });
-    }
-};
-const chengeAction = async ({ commit, state, dispatch }, newinfo) => {
-    commit({ type: USER_FETCH_START });
-    let token = null;
-    if (state.token) {
-        token = state.token;
-    } else if (localStorage.getItem('token')) {
-        token = localStorage.getItem('token');
-    } else {
-        dispatch('logoutAction');
-        
-    }
-    if (token) {
-        fetch(`${apiurl}/api/v1/auth/update`, {
-            method: 'POST',
-            headers: new Headers({
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }),
-            body: JSON.stringify(Object.assign({}, newinfo ))
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.message) {
-                    throw new Error(data.message);
-                } else {
-                     {
-                        commit({
-                            type: USER_FETCH_SUCCESS,
-                            user: data.user
-                        });
-                    }
+                    // }
                 }
             })
             .catch(err => {
@@ -132,17 +92,60 @@ const chengeAction = async ({ commit, state, dispatch }, newinfo) => {
                 });
             });
     }
+}
+
+const loginAction = async ({ commit, state, dispatch }, { email, password }) => {
+    commit({ type: USER_FETCH_START });
+    let token = getToken(state);
+    if (!token) {
+        await tokenAction(commit, email, password);
+        token = getToken(state);
+    }
+    if (token) {
+        dispatch('getUserAction');
+    } else {
+        dispatch('logoutAction');
+    }
 };
 
-const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
-    // console.log('Upload', photo);
-    
-    let token = null;
-    if (state.token) {
-        token = state.token;
-    } else if (localStorage.getItem('token')) {
-        token = localStorage.getItem('token');
+const changeAction = async ({ commit, state, dispatch }, newinfo) => {
+    commit({ type: USER_FETCH_START });
+    let token = getToken(state);
+    if (token) {
+        fetch(`${apiurl}/api/v1/auth/update`, {
+            method: 'POST',
+            headers: new Headers({
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(Object.assign({}, newinfo))
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    throw new Error(data.message);
+                } else {
+                    commit({
+                        type: USER_FETCH_SUCCESS,
+                        user: data.user
+                    });
+                }
+            })
+            .catch(err => {
+                console.log(err.message);
+                commit({
+                    type: USER_FETCH_FAILED,
+                    error: err.message
+                });
+            });
+    } else {
+        dispatch('logoutAction');
     }
+};
+
+const uploadUserPhotoAction = ({ commit, state, dispatch }, { photo }) => {
+    commit({ type: USER_FETCH_START });
+    let token = getToken(state);
     if (photo && token) {
         const form = new FormData();
         form.append('photo', photo, photo.name);
@@ -170,7 +173,14 @@ const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
                     type: USER_FETCH_FAILED,
                     error: err.message
                 });
-        });
+            });
+    } else if (!photo) {
+        commit({
+            type: USER_FETCH_FAILED,
+            error: 'Photo not choosed'
+        })
+    } else if (!token) {
+        dispatch('logoutAction');
     }
 };
 const registerAction = ({ commit, dispatch }, newuser) => {
@@ -183,7 +193,8 @@ const registerAction = ({ commit, dispatch }, newuser) => {
         body: JSON.stringify(Object.assign({}, newuser, { photo: undefined }))
     })
         .then(res => res.json())
-        .then(data => {
+        .then(async data => {
+            // console.log(data);
             if (data.message) {
                 throw new Error(data.message);
             } else {
@@ -193,9 +204,12 @@ const registerAction = ({ commit, dispatch }, newuser) => {
                 };
                 if (newuser.photo) {
                     // console.log(newuser.photo);
-                    payload.photo = newuser.photo;
+                    // payload.photo = newuser.photo;
+                    await dispatch('loginAction', payload);
+                    dispatch('uploadUserPhotoAction', { photo: newuser.photo });
+                } else {
+                    dispatch('loginAction', payload);
                 }
-                dispatch('loginAction', payload);
             }
         })
         .catch(err => {
@@ -204,7 +218,7 @@ const registerAction = ({ commit, dispatch }, newuser) => {
                 type: USER_FETCH_FAILED,
                 error: err.message
             });
-    });
+        });
 };
 
 const logoutAction = ({ commit }) => {
@@ -245,8 +259,12 @@ const usermodule = {
         },
         [TOKEN_FETCH_FAILED]: (state, payload) => {
             state.token = null;
+            state.loading = false;
             state.error = payload.error;
-            // state = Object.assign({}, state, { error: payload.error });
+            if (localStorage.getItem('token')) {
+                localStorage.removeItem('token');
+            }
+            state = Object.assign({}, state, { error: payload.error });
         },
         [TOKEN_DELETE]: (state) => {
             if (localStorage.getItem('token')) {
@@ -256,19 +274,20 @@ const usermodule = {
         },
         [USER_DELETE]: (state) => {
             state.loading = false;
-            state.error = null;
             state.user = null;
         },
         [CLOSE_ERROR]: (state) => {
             state.error = null;
+            state.loading = false;
         }
     },
     actions: {
         loginAction,
         logoutAction,
         registerAction,
-        chengeAction,
-        uploadUserPhotoAction
+        changeAction,
+        uploadUserPhotoAction,
+        getUserAction
     }
 };
 
