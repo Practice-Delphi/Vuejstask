@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <Alert />
+    <Loading />
     <Header />
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
@@ -17,12 +19,15 @@
 <script>
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
-
+import Alert from "@/components/Alert.vue";
+import Loading from "@/components/Loading.vue";
 export default {
   name: "app",
   components: {
     Header,
-    Footer
+    Footer,
+    Alert,
+    Loading
   }
 };
 </script>

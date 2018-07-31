@@ -8,9 +8,14 @@ export const TOKEN_FETCH_SUCCESS = 'TOKEN_FETCH_SUCCESS';
 export const TOKEN_DELETE = 'TOKEN_DELETE';
 export const USER_DELETE = 'USER_DELETE';
 
+export const CLOSE_ERROR = 'CLOSE_ERROR';
+
 const apiurl = `http://localhost:3000`;
 
 const isUserGetter = state => !!(state.user);
+const isErrorGetter = state => !!(state.error);
+const errorGetter = state => state.error;
+const isLoadingGetter = state => state.loading;
 
 const tokenAction = async (commit, email, password) => {
     return fetch(`${apiurl}/api/v1/auth/token`, {
@@ -151,7 +156,7 @@ const registerAction = ({ commit, dispatch }, newuser) => {
             }
         })
         .catch(err => {
-            console.log(err);
+            console.log(err.message);
             commit({
                 type: USER_FETCH_FAILED,
                 error: err.message
@@ -172,7 +177,10 @@ const usermodule = {
         token: null
     },
     getters: {
-        isUserGetter
+        isUserGetter,
+        isErrorGetter,
+        errorGetter,
+        isLoadingGetter
     },
     mutations: {
         [USER_FETCH_START]: (state) => {
@@ -207,6 +215,9 @@ const usermodule = {
             state.loading = false;
             state.error = null;
             state.user = null;
+        },
+        [CLOSE_ERROR]: (state) => {
+            state.error = null;
         }
     },
     actions: {
