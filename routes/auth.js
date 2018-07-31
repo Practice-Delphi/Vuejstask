@@ -75,7 +75,7 @@ router.get('/getuser', authorize, (req, res, next) => {
 
 /* POST update current user */
 router.post('/update', bodyverify, authorize, (req, res, next) => {
-    db.updateUser(req.tokendata.email, req.body)
+    db.updateUser(req.tokendata.email, req.body) 
         .then(user => res.send({ user }))
         .catch(err => res.status(400).send({ message: err.message }));
 });
@@ -83,7 +83,6 @@ router.post('/update', bodyverify, authorize, (req, res, next) => {
 /* POST upload user photo */
 router.post('/uploadphoto', bodyverify, authorize, uploadphoto, (req, res, next) => {
     const url = `${req.file.filename}`;
-    console.log(req.file);
     db.updateUserPhoto(url, req.tokendata.email)
         .then(user => {
             res.send({ user });

@@ -132,13 +132,26 @@ class DataBase {
         return new Promise((resolve, reject) => {
             this.getUser({ email })
                 .then(user => {
-                    if (updates.password) {
-                        updates.password = bcrypt.hashSync(updates.password, bcryptconf.saltrounds());
+                    let update= {};
+                    if (updates.password !== updates.passconf) {
+                        reject(new Error('Password not confirmed'));
                     }
-                    if (updates.photo) {
-                        updates.photo = undefined;
+                    else {
+                        if (updates.password) { 
+                            updates.password = bcrypt.hashSync(updates.password, bcryptconf.saltrounds());
+                            update.password = updates.password;
+                        }
                     }
-                    return this.User.findByIdAndUpdate(user._id, updates, { new: true });
+                                        
+                    if (updates.name ){
+                        
+                        update.name  = updates.name;                  
+                    }
+                    if (!update.name && !update.password) {
+                        reject(new Error('No params set'))
+                    }
+                    
+                    return this.User.findByIdAndUpdate(user._id, update, { new: true });
                 })
                 .then(newuser => {
                     newuser.password = undefined;
@@ -155,24 +168,30 @@ class DataBase {
             if (!email) {
                 reject(new Error('No user email to update photo'));
             }
-            console.log(url, email);
             this.getUser({ email })
                 .then(user => {
                     const dist = `${__dirname}/../res/photos/${user.photo}`;
                     if (user.photo && fs.existsSync(dist)) {
-                        fs.unlink(dist, (err) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                return this.User.findByIdAndUpdate(user._id, { photo: url });
-                            }
-                        })
+                        // fs.unlink(dist, (err) => {
+                        //     if (err) {
+                        //         reject(err);
+                        //     } else {
+                        //         return this.User.findByIdAndUpdate(user._id, { photo: url }, { new: true });
+                        //     }
+                        // })
+                        try {
+                            fs.unlinkSync(dist);
+                        } catch (err) {
+                            reject(err);
+                        }
+                        return this.User.findByIdAndUpdate(user._id, { photo: url }, { new: true });
                     } else {
                         return this.User.findByIdAndUpdate(user._id, { photo: url }, { new: true });
                     }
                 })
                 .then(newuser => {
                     newuser.password = undefined;
+                    console.log(newuser)
                     resolve(newuser);
                 })
                 .catch(reject);

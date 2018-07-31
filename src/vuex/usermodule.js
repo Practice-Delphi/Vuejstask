@@ -91,9 +91,52 @@ const loginAction = async ({ commit, state, dispatch }, { email, password, photo
         });
     }
 };
+const chengeAction = async ({ commit, state, dispatch }, newinfo) => {
+    commit({ type: USER_FETCH_START });
+    let token = null;
+    if (state.token) {
+        token = state.token;
+    } else if (localStorage.getItem('token')) {
+        token = localStorage.getItem('token');
+    } else {
+        dispatch('logoutAction');
+        
+    }
+    if (token) {
+        fetch(`${apiurl}/api/v1/auth/update`, {
+            method: 'POST',
+            headers: new Headers({
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(Object.assign({}, newinfo ))
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    throw new Error(data.message);
+                } else {
+                     {
+                        commit({
+                            type: USER_FETCH_SUCCESS,
+                            user: data.user
+                        });
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err.message);
+                commit({
+                    type: USER_FETCH_FAILED,
+                    error: err.message
+                });
+            });
+    }
+};
 
 const uploadUserPhotoAction = async ({ commit, state }, { photo }) => {
     // console.log('Upload', photo);
+    
     let token = null;
     if (state.token) {
         token = state.token;
@@ -224,6 +267,7 @@ const usermodule = {
         loginAction,
         logoutAction,
         registerAction,
+        chengeAction,
         uploadUserPhotoAction
     }
 };
