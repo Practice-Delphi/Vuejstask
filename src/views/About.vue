@@ -1,5 +1,5 @@
 <template>
-  <div class="about container">
+  <div class="container about">
     <div class="text">
       <h2>
         Делая этот сайт мы старались использовать 
@@ -15,18 +15,22 @@
 <style>
 .about{
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: center;
-  
-
-
+  padding: 20px;
+  max-width: 90%;
 }
 .text{
-  width: 40%;
+  flex: 3 1 50%;
   margin-right: 25px;
 }
 .image{
+  flex: 1 1 40%;
   width: 40%;
+}
+
+.image > img {
+  max-width: 100%;
 }
 
 

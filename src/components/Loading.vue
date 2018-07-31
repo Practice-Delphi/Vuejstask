@@ -22,9 +22,6 @@ export default {
     ...mapGetters({
       isLoading: "isLoadingGetter"
     })
-  },
-  updated() {
-      console.log(this.isLoading);
   }
 };
 </script>

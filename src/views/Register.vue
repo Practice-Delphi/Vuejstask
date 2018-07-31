@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
+  <div class="container" v-if="!isUser">
     <form @submit='register'>
       <div class="form-title">Register</div>
       <div class="form-photo">
@@ -36,7 +35,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import defaultuserphoto from "../assets/default-user.png";
 export default {
   name: "Register",
@@ -52,8 +51,8 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      userData: "userData"
+    ...mapGetters({
+      isUser: 'isUserGetter'
     })
   },
   methods: {
@@ -95,7 +94,7 @@ export default {
     }
   },
   created() {
-    if (this.userData.user) {
+    if (this.isUser) {
       this.$router.replace("/profile");
     }
     if (!this.photourl) {
@@ -103,7 +102,7 @@ export default {
     }
   },
   updated() {
-    if (this.userData.user) {
+    if (this.isUser) {
       this.$router.replace("/profile");
     }
   }

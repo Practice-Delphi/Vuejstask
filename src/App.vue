@@ -28,6 +28,9 @@ export default {
     Footer,
     Alert,
     Loading
+  },
+  created() {
+    this.$store.dispatch('getUserAction');
   }
 };
 </script>
@@ -41,6 +44,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
+  word-wrap: break-word;
 }
 
 #app {
@@ -201,6 +205,9 @@ button:hover {
   }
   .form-input {
     flex-flow: column nowrap;
+  }
+  .form-photo-input {
+    max-width: 200px;
   }
   .form-photo-input-button {
     font-size: 16px;

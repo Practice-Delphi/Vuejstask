@@ -1,6 +1,5 @@
 <template>
-  <div class="container">
-    <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
+  <div class="container" v-if="!isUser">
     <form @submit="login">
       <div class="form-title">Login</div>
       <div class="form-input">
@@ -17,7 +16,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Login",
@@ -28,8 +27,8 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      userData: "userData"
+    ...mapGetters({
+      isUser: 'isUserGetter'
     })
   },
   methods: {
@@ -49,12 +48,12 @@ export default {
     }
   },
   created() {
-    if (this.userData.user) {
+    if (this.isUser) {
       this.$router.replace("/profile");
     }
   },
   updated() {
-    if (this.userData.user) {
+    if (this.isUser) {
       this.$router.replace("/profile");
     }
   }

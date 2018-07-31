@@ -1,31 +1,36 @@
 <template>
-  <div class="container" v-if="isUser">
-    <div > 
-        <h1>This is profile page</h1>
-        <h1 v-if="userData.user">Welcome {{ userData.user.name }}</h1>
-        <img :src='userphoto' alt="userphoto"/>
+  <div class="container profile" v-if="isUser">
+    <div class="profile-container"> 
+        <h1 class="profile-title">Profile</h1>
+        <div class="profile-photo"><img :src='userphoto' alt="userphoto"/></div>
+        <div class="profile-data">
+          <Strong>Name:</Strong> {{userData.user.name}}
+        </div>
+        <div class="profile-data">
+          <Strong>Email:</Strong> {{userData.user.email}}
+        </div>
     </div>
-    <div>
+    <div class="change-container">
         <div class = "chenge_form">
             <form  @submit="addchengeName">
-            <h4>change your name</h4>
-            <h3>Your old name {{ userData.user.name }}</h3> 
-            Please type your new name: <input type="text" placeholder="new name" @change='changeName'> <br/>
-            <button type="submit">apply</button>
+            <h4 class="form-title">Change your name</h4>
+            <div class="form-input"><label>Your old name is {{ userData.user.name }}</label></div> 
+            <div class="form-input"><label>Please type your new name:</label><input type="text" placeholder="new name" @change='changeName'></div>
+            <button class="form-submit" type="submit">Apply</button>
             </form>
         </div>
         <div class = "chenge_form">
             <form  @submit="addchengePass">
-            <h4>change your password</h4>
-            <label>New Password:</label><input type="text" placeholder="New Password" @change='changePassword'> <br/>
-            <label>Confirm New Password:</label><input type="text" placeholder="Confirm Password" @change='changePassconf'>
-            <button type="submit">apply</button>
+            <h4 class="form-title">Change your password</h4>
+            <div class="form-input"><label>New Password:</label><input type="password" placeholder="New Password" @change='changePassword'></div>
+            <div class="form-input"><label>Confirm New Password:</label><input type="password" placeholder="Confirm Password" @change='changePassconf'></div>
+            <button class="form-submit" type="submit">Apply</button>
             </form>
         
         </div>
         <div class = "chenge_form">
             <form  @submit="addchengePhoto">
-            <h4>change Profile Picture</h4>
+            <h4 class="form-title">Change Profile Picture</h4>
            <div class="form-photo">
         <div class="form-photo-preview">
           <img :src="photourl" alt="photo"/>
@@ -38,7 +43,7 @@
           <input class="form-photo-input-file" type="file" accept="image/*" @change='changePhoto'/>
         </div>
       </div> 
-            <button type="submit">apply</button>
+            <button class="form-submit" type="submit">Apply</button>
             </form>
         
         </div>
@@ -66,14 +71,14 @@ export default {
   methods: {
     ...mapActions({
       addchengeName() {
-        this.$store.dispatch("chengeAction", {
+        this.$store.dispatch("changeAction", {
           name: this.name
         });
       },
-        addchengePass() {
-        this.$store.dispatch("chengeAction", {
-          password:  this.password,
-          passconf:  this.passconf
+      addchengePass() {
+        this.$store.dispatch("changeAction", {
+          password: this.password,
+          passconf: this.passconf
         });
       },
       addchengePhoto() {
@@ -104,7 +109,6 @@ export default {
         reader.readAsDataURL(this.photo);
       }
     }
-    
   },
   computed: {
     ...mapState({
@@ -116,18 +120,15 @@ export default {
   },
   created() {
     // console.log(this.userphoto, defaultuserphoto);
-    if (!this.userData.user) {
-      this.$router.replace("/login");
-    }
-    if (!this.photourl) {
+    if (this.isUser) {
       this.photourl = this.userData.user.photo
         ? `http://localhost:3000/r/photo/${this.userData.user.photo}`
         : defaultuserphoto;
-    }
-    if (this.isUser) {
       this.userphoto = this.userData.user.photo
         ? `http://localhost:3000/r/photo/${this.userData.user.photo}`
         : defaultuserphoto;
+    } else {
+      this.$router.replace("/login");
     }
   },
   updated() {
@@ -135,19 +136,92 @@ export default {
       this.userphoto = this.userData.user.photo
         ? `http://localhost:3000/r/photo/${this.userData.user.photo}`
         : defaultuserphoto;
+    } else {
+      this.$router.replace("/login");
     }
   }
 };
 </script>
 
 <style>
-.container {
+.profile {
   display: flex;
   flex-flow: row wrap;
+  width: 90%;
 }
-.chenge_form{
-    border-top: 1px solid rgba(128, 128, 128, 0.651); 
-    border-bottom: 1px solid rgba(128, 128, 128, 0.651);
-    margin-left: 15px;
+.chenge_form {
+  border-top: 1px solid rgba(128, 128, 128, 0.651);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.651);
+  margin: 0 15px;
+}
+
+.profile-container {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+.profile-photo {
+  padding: 10px 0;
+  border-radius: 5px;
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.profile-photo > img {
+  position: absolute;
+  margin: auto;
+  min-height: 300px;
+  min-width: 300px;
+  width: 300px;
+  height: auto;
+}
+
+.profile-title {
+  margin: 0 auto;
+  padding-bottom: 10px;
+}
+
+.profile-data {
+  align-self: stretch;
+  padding: 5px 10px;
+  font-size: 18px;
+  border-left: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.change-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.form-input {
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+.form-input > label {
+  margin-left: 10px;
+}
+
+@media screen and (max-width: 500px) {
+  .profile-photo {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .profile-photo > img {
+    min-width: 200px;
+    min-height: 200px;
+  }
+
+  .profile {
+    width: 95%;
+  }
 }
 </style>

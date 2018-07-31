@@ -21,24 +21,12 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+  padding: 10px;
 }
 .fanny{
   width: 400px;
   height: auto;
+  max-width: 95%;
 }
 
 @keyframes spin{
